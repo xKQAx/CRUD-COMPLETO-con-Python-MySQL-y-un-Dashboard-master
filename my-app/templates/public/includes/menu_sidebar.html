@@ -45,6 +45,23 @@
         <div data-i18n="Tables">Lista de Usuarios</div>
       </a>
     </li>
+    <li class="menu-header small text-uppercase">
+      <span class="menu-header-text">Documentos</span>
+    </li>
+    <li
+      class="menu-item {% if request.path == '/registrar-documento' %} active {% endif %}">
+      <a href="{{ url_for('viewFormDocumento') }}" class="menu-link">
+        <i class="menu-icon bi bi-file-earmark-plus"></i>
+        <div data-i18n="Basic">Registrar Documento</div>
+      </a>
+    </li>
+    <li
+      class="menu-item {% if request.path == '/lista-de-documentos' %} active{% endif %}">
+      <a href="/lista-de-documentos" class="menu-link">
+        <i class="menu-icon bi bi-file-earmark-text"></i>
+        <div data-i18n="Boxicons">Lista de Documentos</div>
+      </a>
+    </li>
     <li
       class="menu-item {% if request.path == '/mi-perfil' %} active {% endif %}">
       <a href="/mi-perfil" class="menu-link">

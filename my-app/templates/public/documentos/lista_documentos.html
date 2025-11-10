@@ -1,0 +1,156 @@
+{% extends 'public/base_cpanel.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Lista de Documentos{% endblock %}
+<!--Inicio del block-->
+{% block body %}
+
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12 mb-4">
+      <h3 class="text-center mt-5 mb-3">LISTA DE DOCUMENTOS</h3>
+      <hr />
+    </div>
+
+    <div class="row justify-content-end">
+      <div class="col-md-6 mt-4 py-2">
+        <input
+          type="search"
+          id="search"
+          class="form-control border-0 shadow-none"
+          placeholder="Buscar documento..."
+          onkeyup="buscadorTable('tbl_documentos')" />
+      </div>
+    </div>
+
+    <div class="row justify-content-center mb-2">
+      <div class="table-responsive text-nowrap table-hover">
+        <table
+          table-hover
+          id="tbl_documentos"
+          class="table table-striped table-bordered"
+          cellspacing="0"
+          width="100%">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nombre</th>
+              <th>Archivo</th>
+              <th>Fecha Vencimiento</th>
+              <th>Días Restantes</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for documento in documentos %}
+            <tr id="documento_{{ documento.id_documento }}">
+              <td>{{ loop.index }}</td>
+              <td>{{ documento.nombre_documento }}</td>
+              <td>
+                {% if documento.archivo_documento %}
+                  {% set archivo_ext = documento.archivo_documento.split('.')[-1]|lower %}
+                  {% set es_imagen = archivo_ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp'] %}
+                  {% if es_imagen %}
+                    <a href="/detalles-documento/{{ documento.id_documento }}" class="btn btn-sm btn-outline-primary" title="Ver imagen">
+                      <i class="bi bi-image"></i> Ver imagen
+                    </a>
+                  {% else %}
+                    <a href="/static/documentos/{{ documento.archivo_documento }}" target="_blank" class="btn btn-sm btn-outline-primary" title="Ver/Descargar archivo">
+                      <i class="bi bi-file-earmark"></i> Ver archivo
+                    </a>
+                  {% endif %}
+                {% else %}
+                  <span class="text-muted">Sin archivo</span>
+                {% endif %}
+              </td>
+              <td>{{ documento.fecha_vencimiento }}</td>
+              <td>
+                {% if documento.dias_restantes < 0 %}
+                  <span class="badge bg-danger">Vencido ({{ documento.dias_restantes|abs }} días)</span>
+                {% elif documento.dias_restantes == 0 %}
+                  <span class="badge bg-warning">Vence hoy</span>
+                {% elif documento.dias_restantes <= 7 %}
+                  <span class="badge bg-warning">{{ documento.dias_restantes }} días</span>
+                {% elif documento.dias_restantes <= 30 %}
+                  <span class="badge bg-info">{{ documento.dias_restantes }} días</span>
+                {% else %}
+                  <span class="badge bg-success">{{ documento.dias_restantes }} días</span>
+                {% endif %}
+              </td>
+              <td width="10px">
+                <a
+                  href="/detalles-documento/{{ documento.id_documento }}"
+                  title="Ver detalles"
+                  type="button"
+                  class="btn btn-info btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Ver detalles</span>">
+                  <i class="bi bi-eye"></i>
+                  Ver detalles
+                </a>
+                <a
+                  href="{{ url_for('viewEditarDocumento', id = documento.id_documento) }}"
+                  class="btn btn-success btn-sm"
+                  tooltip="Actualizar Registro">
+                  <i class="bi bi-arrow-clockwise"></i>
+                  Actualizar
+                </a>
+                <a
+                  href="#"
+                  onclick="eliminarDocumento('{{ documento.id_documento }}');"
+                  class="btn btn-danger btn-sm"
+                  data-bs-toggle="tooltip"
+                  data-bs-offset="0,4"
+                  data-bs-placement="top"
+                  data-bs-html="true"
+                  title="<span>Eliminar documento {{ documento.nombre_documento }}</span>">
+                  <i class="bi bi-trash3"></i>
+                  Eliminar
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block customJS %}
+<script>
+function eliminarDocumento(id_documento) {
+  if (confirm('¿Estás seguro de que deseas eliminar este documento?')) {
+    window.location.href = '/borrar-documento/' + id_documento;
+  }
+}
+
+// Función de búsqueda en tabla
+function buscadorTable(id_tabla) {
+  var input = document.getElementById('search');
+  var filter = input.value.toUpperCase();
+  var table = document.getElementById(id_tabla);
+  var tr = table.getElementsByTagName('tr');
+
+  for (var i = 1; i < tr.length; i++) {
+    var td = tr[i].getElementsByTagName('td');
+    var found = false;
+    for (var j = 0; j < td.length; j++) {
+      if (td[j]) {
+        var txtValue = td[j].textContent || td[j].innerText;
+        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+          found = true;
+          break;
+        }
+      }
+    }
+    tr[i].style.display = found ? '' : 'none';
+  }
+}
+</script>
+{% endblock %}
+

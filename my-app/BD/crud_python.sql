@@ -52,6 +52,36 @@ INSERT INTO `users` (`id`, `name_surname`, `email_user`, `pass_user`, `created_u
 	(1, 'Urian', 'dev@gmail.com', 'scrypt:32768:8:1$ZXqvqovbXYQZdrAB$66758083429739f4f8985992b22cb89fb58c04b99010858e7fb26f73078a23dd3e16019a17bf881108d582a91a635d2c21d26d80da1612c2d9c9bbb9b06452dc', '2023-07-21 20:10:01'),
 	(2, 'demo', 'demo@gmail.com', 'scrypt:32768:8:1$Yl2tGU1Ru1Q4Jrzq$d88a0ded538dcfc3a01c8ebf4ea77700576203f6a7cc765f04627464c6047bdcf8eaad84ca3cf0bb5ed058d2dff8ee7a0ba690803538764bedc3ba6173ac6a8a', '2023-07-21 20:29:28');
 
+-- Volcando estructura para tabla crud_python.tbl_documentos
+CREATE TABLE IF NOT EXISTS `tbl_documentos` (
+  `id_documento` int NOT NULL AUTO_INCREMENT,
+  `nombre_documento` varchar(100) NOT NULL,
+  `fecha_vencimiento` date NOT NULL,
+  `descripcion` text,
+  `archivo_documento` mediumtext COMMENT 'Nombre del archivo PDF o imagen',
+  `fecha_registro` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `fecha_actualizacion` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_documento`),
+  KEY `idx_fecha_vencimiento` (`fecha_vencimiento`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Volcando estructura para tabla crud_python.tbl_notificaciones_config
+CREATE TABLE IF NOT EXISTS `tbl_notificaciones_config` (
+  `id_config` int NOT NULL AUTO_INCREMENT,
+  `id_documento` int NOT NULL,
+  `dias_antes` int NOT NULL COMMENT 'Días antes del vencimiento para notificar (0=mismo día, 7=una semana, 30=un mes)',
+  `notificar_mismo_dia` tinyint(1) DEFAULT 1 COMMENT '1=Notificar el mismo día, 0=No notificar',
+  `notificar_una_semana` tinyint(1) DEFAULT 1 COMMENT '1=Notificar una semana antes, 0=No notificar',
+  `notificar_un_mes` tinyint(1) DEFAULT 1 COMMENT '1=Notificar un mes antes, 0=No notificar',
+  `notificado` tinyint(1) DEFAULT 0 COMMENT '0=No notificado, 1=Ya notificado',
+  `fecha_notificacion` timestamp NULL DEFAULT NULL,
+  `fecha_registro` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id_config`),
+  KEY `idx_id_documento` (`id_documento`),
+  KEY `idx_notificado` (`notificado`),
+  CONSTRAINT `fk_notificaciones_documento` FOREIGN KEY (`id_documento`) REFERENCES `tbl_documentos` (`id_documento`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
 /*!40014 SET FOREIGN_KEY_CHECKS=IFNULL(@OLD_FOREIGN_KEY_CHECKS, 1) */;

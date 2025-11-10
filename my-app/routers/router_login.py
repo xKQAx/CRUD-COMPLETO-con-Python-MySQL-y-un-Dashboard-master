@@ -16,7 +16,7 @@ PATH_URL_LOGIN = "public/login"
 @app.route('/', methods=['GET'])
 def inicio():
     if 'conectado' in session:
-        return render_template('public/base_cpanel.html', dataLogin=dataLoginSesion())
+        return render_template('public/dashboard.html', dataLogin=dataLoginSesion())
     else:
         return render_template(f'{PATH_URL_LOGIN}/base_login.html')
 
@@ -107,28 +107,38 @@ def loginCliente():
 
             # Comprobando si existe una cuenta
             conexion_MySQLdb = connectionBD()
-            cursor = conexion_MySQLdb.cursor(dictionary=True)
-            cursor.execute(
-                "SELECT * FROM users WHERE email_user = %s", [email_user])
-            account = cursor.fetchone()
-
-            if account:
-                if check_password_hash(account['pass_user'], pass_user):
-                    # Crear datos de sesión, para poder acceder a estos datos en otras rutas
-                    session['conectado'] = True
-                    session['id'] = account['id']
-                    session['name_surname'] = account['name_surname']
-                    session['email_user'] = account['email_user']
-
-                    flash('la sesión fue correcta.', 'success')
-                    return redirect(url_for('inicio'))
-                else:
-                    # La cuenta no existe o el nombre de usuario/contraseña es incorrecto
-                    flash('datos incorrectos por favor revise.', 'error')
-                    return render_template(f'{PATH_URL_LOGIN}/base_login.html')
-            else:
-                flash('el usuario no existe, por favor verifique.', 'error')
+            if conexion_MySQLdb is None:
+                flash('Error de conexión a la base de datos. Por favor, verifica que MySQL esté corriendo.', 'error')
                 return render_template(f'{PATH_URL_LOGIN}/base_login.html')
+            
+            try:
+                cursor = conexion_MySQLdb.cursor(dictionary=True)
+                cursor.execute(
+                    "SELECT * FROM users WHERE email_user = %s", [email_user])
+                account = cursor.fetchone()
+
+                if account:
+                    if check_password_hash(account['pass_user'], pass_user):
+                        # Crear datos de sesión, para poder acceder a estos datos en otras rutas
+                        session['conectado'] = True
+                        session['id'] = account['id']
+                        session['name_surname'] = account['name_surname']
+                        session['email_user'] = account['email_user']
+
+                        flash('la sesión fue correcta.', 'success')
+                        return redirect(url_for('inicio'))
+                    else:
+                        # La cuenta no existe o el nombre de usuario/contraseña es incorrecto
+                        flash('datos incorrectos por favor revise.', 'error')
+                        return render_template(f'{PATH_URL_LOGIN}/base_login.html')
+                else:
+                    flash('el usuario no existe, por favor verifique.', 'error')
+                    return render_template(f'{PATH_URL_LOGIN}/base_login.html')
+            finally:
+                if conexion_MySQLdb and conexion_MySQLdb.is_connected():
+                    if 'cursor' in locals():
+                        cursor.close()
+                    conexion_MySQLdb.close()
         else:
             flash('primero debes iniciar sesión.', 'error')
             return render_template(f'{PATH_URL_LOGIN}/base_login.html')

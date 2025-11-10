@@ -1,0 +1,144 @@
+{% extends 'public/base_cpanel.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Registrar Documento{% endblock %}
+
+<!--Inicio del block-->
+{% block body %}
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">REGISTRAR NUEVO DOCUMENTO</h3>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <form
+        class="form-horizontal mx-auto"
+        method="POST"
+        action="/form-registrar-documento"
+        autocomplete="off"
+        enctype="multipart/form-data">
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6">
+              <label for="nombre_documento" class="form-label">
+                Nombre del documento <span class="text-danger">*</span>
+              </label>
+              <input
+                type="text"
+                name="nombre_documento"
+                class="form-control"
+                placeholder="Ej: SOAT Vehículo ABC-123"
+                required />
+            </div>
+            <div class="col-md-6">
+              <label for="fecha_vencimiento" class="form-label">
+                Fecha de vencimiento <span class="text-danger">*</span>
+              </label>
+              <input
+                class="form-control"
+                type="date"
+                name="fecha_vencimiento"
+                required />
+            </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="col-md-12">
+              <label for="archivo_documento" class="form-label">
+                Subir archivo (PDF o Imagen)
+              </label>
+              <input
+                class="form-control"
+                type="file"
+                name="archivo_documento"
+                accept=".pdf,.jpg,.jpeg,.png,.gif,.bmp" />
+              <small class="form-text text-muted">Formatos permitidos: PDF, JPG, JPEG, PNG, GIF, BMP (Opcional)</small>
+            </div>
+          </div>
+
+          <div class="row mt-2">
+            <div class="col-md-12">
+              <label for="descripcion" class="form-label">
+                Descripción
+              </label>
+              <textarea
+                class="form-control"
+                name="descripcion"
+                rows="3"
+                placeholder="Ingrese una descripción del documento (opcional)"></textarea>
+            </div>
+          </div>
+
+          <div class="row mt-4">
+            <div class="col-md-12">
+              <h5 class="mb-3">Configuración de Notificaciones</h5>
+              <div class="card">
+                <div class="card-body">
+                  <!-- Campos ocultos para asegurar que siempre se envíen valores -->
+                  <input type="hidden" name="notificar_mismo_dia" value="0" id="hidden_notificar_mismo_dia">
+                  <input type="hidden" name="notificar_una_semana" value="0" id="hidden_notificar_una_semana">
+                  <input type="hidden" name="notificar_un_mes" value="0" id="hidden_notificar_un_mes">
+                  
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="notificar_mismo_dia"
+                      value="1"
+                      id="notificar_mismo_dia"
+                      checked
+                      onchange="document.getElementById('hidden_notificar_mismo_dia').disabled = this.checked;" />
+                    <label class="form-check-label" for="notificar_mismo_dia">
+                      Notificar el mismo día del vencimiento
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="notificar_una_semana"
+                      value="1"
+                      id="notificar_una_semana"
+                      checked
+                      onchange="document.getElementById('hidden_notificar_una_semana').disabled = this.checked;" />
+                    <label class="form-check-label" for="notificar_una_semana">
+                      Notificar una semana antes (7 días)
+                    </label>
+                  </div>
+                  <div class="form-check mb-2">
+                    <input
+                      class="form-check-input"
+                      type="checkbox"
+                      name="notificar_un_mes"
+                      value="1"
+                      id="notificar_un_mes"
+                      checked
+                      onchange="document.getElementById('hidden_notificar_un_mes').disabled = this.checked;" />
+                    <label class="form-check-label" for="notificar_un_mes">
+                      Notificar un mes antes (30 días)
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mb-3 mt-4 text-center">
+            <button type="submit" class="btn rounded-pill btn-primary">
+              Guardar registro ahora
+              <i class="bi bi-arrow-clockwise"></i>
+            </button>
+            <a href="{{ url_for('lista_documentos') }}" class="btn rounded-pill btn-secondary">
+              Cancelar
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

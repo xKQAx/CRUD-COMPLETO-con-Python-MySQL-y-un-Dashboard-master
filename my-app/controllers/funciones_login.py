@@ -18,7 +18,12 @@ def recibeInsertRegisterUser(name_surname, email_user, pass_user):
     if (respuestaValidar):
         nueva_password = generate_password_hash(pass_user, method='scrypt')
         try:
-            with connectionBD() as conexion_MySQLdb:
+            conexion_MySQLdb = connectionBD()
+            if conexion_MySQLdb is None:
+                print("Error: No se pudo establecer la conexión a la BD")
+                return []
+            
+            try:
                 with conexion_MySQLdb.cursor(dictionary=True) as mycursor:
                     sql = "INSERT INTO users(name_surname, email_user, pass_user) VALUES (%s, %s, %s)"
                     valores = (name_surname, email_user, nueva_password)
@@ -26,6 +31,9 @@ def recibeInsertRegisterUser(name_surname, email_user, pass_user):
                     conexion_MySQLdb.commit()
                     resultado_insert = mycursor.rowcount
                     return resultado_insert
+            finally:
+                if conexion_MySQLdb.is_connected():
+                    conexion_MySQLdb.close()
         except Exception as e:
             print(f"Error en el Insert users: {e}")
             return []
@@ -36,7 +44,12 @@ def recibeInsertRegisterUser(name_surname, email_user, pass_user):
 # Validando la data del Registros para el login
 def validarDataRegisterLogin(name_surname, email_user, pass_user):
     try:
-        with connectionBD() as conexion_MySQLdb:
+        conexion_MySQLdb = connectionBD()
+        if conexion_MySQLdb is None:
+            print("Error: No se pudo establecer la conexión a la BD")
+            return False
+        
+        try:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = "SELECT * FROM users WHERE email_user = %s"
                 cursor.execute(querySQL, (email_user,))
@@ -54,6 +67,9 @@ def validarDataRegisterLogin(name_surname, email_user, pass_user):
                 else:
                     # La cuenta no existe y los datos del formulario son válidos, puedo realizar el Insert
                     return True
+        finally:
+            if conexion_MySQLdb.is_connected():
+                conexion_MySQLdb.close()
     except Exception as e:
         print(f"Error en validarDataRegisterLogin : {e}")
         return []
@@ -61,12 +77,20 @@ def validarDataRegisterLogin(name_surname, email_user, pass_user):
 
 def info_perfil_session():
     try:
-        with connectionBD() as conexion_MySQLdb:
+        conexion_MySQLdb = connectionBD()
+        if conexion_MySQLdb is None:
+            print("Error: No se pudo establecer la conexión a la BD")
+            return []
+        
+        try:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = "SELECT name_surname, email_user FROM users WHERE id = %s"
                 cursor.execute(querySQL, (session['id'],))
                 info_perfil = cursor.fetchall()
-        return info_perfil
+            return info_perfil
+        finally:
+            if conexion_MySQLdb.is_connected():
+                conexion_MySQLdb.close()
     except Exception as e:
         print(f"Error en info_perfil_session : {e}")
         return []
@@ -84,7 +108,12 @@ def procesar_update_perfil(data_form):
     if not pass_actual or not email_user:
         return 3
 
-    with connectionBD() as conexion_MySQLdb:
+    conexion_MySQLdb = connectionBD()
+    if conexion_MySQLdb is None:
+        print("Error: No se pudo establecer la conexión a la BD")
+        return []
+    
+    try:
         with conexion_MySQLdb.cursor(dictionary=True) as cursor:
             querySQL = """SELECT * FROM users WHERE email_user = %s LIMIT 1"""
             cursor.execute(querySQL, (email_user,))
@@ -101,8 +130,12 @@ def procesar_update_perfil(data_form):
                             try:
                                 nueva_password = generate_password_hash(
                                     new_pass_user, method='scrypt')
-                                with connectionBD() as conexion_MySQLdb:
-                                    with conexion_MySQLdb.cursor(dictionary=True) as cursor:
+                                conexion_MySQLdb2 = connectionBD()
+                                if conexion_MySQLdb2 is None:
+                                    print("Error: No se pudo establecer la conexión a la BD")
+                                    return []
+                                try:
+                                    with conexion_MySQLdb2.cursor(dictionary=True) as cursor2:
                                         querySQL = """
                                             UPDATE users
                                             SET 
@@ -112,20 +145,31 @@ def procesar_update_perfil(data_form):
                                         """
                                         params = (name_surname,
                                                   nueva_password, id_user)
-                                        cursor.execute(querySQL, params)
-                                        conexion_MySQLdb.commit()
-                                return cursor.rowcount or []
+                                        cursor2.execute(querySQL, params)
+                                        conexion_MySQLdb2.commit()
+                                    return cursor2.rowcount or []
+                                finally:
+                                    if conexion_MySQLdb2.is_connected():
+                                        conexion_MySQLdb2.close()
                             except Exception as e:
                                 print(
                                     f"Ocurrió en procesar_update_perfil: {e}")
                                 return []
             else:
                 return 0
+    finally:
+        if conexion_MySQLdb.is_connected():
+            conexion_MySQLdb.close()
 
 
 def updatePefilSinPass(id_user, name_surname):
     try:
-        with connectionBD() as conexion_MySQLdb:
+        conexion_MySQLdb = connectionBD()
+        if conexion_MySQLdb is None:
+            print("Error: No se pudo establecer la conexión a la BD")
+            return []
+        
+        try:
             with conexion_MySQLdb.cursor(dictionary=True) as cursor:
                 querySQL = """
                     UPDATE users
@@ -136,7 +180,10 @@ def updatePefilSinPass(id_user, name_surname):
                 params = (name_surname, id_user)
                 cursor.execute(querySQL, params)
                 conexion_MySQLdb.commit()
-        return cursor.rowcount
+            return cursor.rowcount
+        finally:
+            if conexion_MySQLdb.is_connected():
+                conexion_MySQLdb.close()
     except Exception as e:
         print(f"Ocurrió un error en la funcion updatePefilSinPass: {e}")
         return []

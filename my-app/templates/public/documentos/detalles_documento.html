@@ -1,0 +1,262 @@
+{% extends 'public/base_cpanel.html' %}
+<!--Cambiando el title-->
+{% block title %}Crud con Python 🐍 | Detalles del Documento{% endblock %}
+
+<!--Inicio del block-->
+{% block body %}
+{% if (detalle_documento|length) %}
+<div class="card" style="border-radius: 0px !important">
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-12">
+      <h3 class="text-center mt-5 mb-3">
+        <a href="/lista-de-documentos">
+          <i class="bi bi-arrow-left-circle"></i>
+        </a>
+        INFORMACIÓN DEL DOCUMENTO
+      </h3>
+      <hr />
+    </div>
+  </div>
+
+  <div class="row justify-content-center mb-2">
+    <div class="col-md-10">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-6">
+            <label for="nombre_documento" class="form-label">
+              <strong>Nombre del documento</strong>
+            </label>
+            <br />
+            {{ detalle_documento.nombre_documento }}
+          </div>
+          <div class="col-md-6">
+            <label for="fecha_vencimiento" class="form-label">
+              <strong>Fecha de vencimiento</strong>
+            </label>
+            <br />
+            {{ detalle_documento.fecha_vencimiento }}
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-md-6">
+            <label for="dias_restantes" class="form-label">
+              <strong>Días restantes</strong>
+            </label>
+            <br />
+            {% if detalle_documento.dias_restantes < 0 %}
+              <span class="badge bg-danger">Vencido ({{ detalle_documento.dias_restantes|abs }} días)</span>
+            {% elif detalle_documento.dias_restantes == 0 %}
+              <span class="badge bg-warning">Vence hoy</span>
+            {% elif detalle_documento.dias_restantes <= 7 %}
+              <span class="badge bg-warning">{{ detalle_documento.dias_restantes }} días</span>
+            {% elif detalle_documento.dias_restantes <= 30 %}
+              <span class="badge bg-info">{{ detalle_documento.dias_restantes }} días</span>
+            {% else %}
+              <span class="badge bg-success">{{ detalle_documento.dias_restantes }} días</span>
+            {% endif %}
+          </div>
+          <div class="col-md-6">
+            <label for="fecha_registro" class="form-label">
+              <strong>Fecha de registro</strong>
+            </label>
+            <br />
+            {{ detalle_documento.fecha_registro }}
+          </div>
+        </div>
+
+        <div class="row mt-3">
+          <div class="col-md-12">
+            <label for="archivo_documento" class="form-label">
+              <strong>Archivo</strong>
+            </label>
+            <br />
+            {% if detalle_documento.archivo_documento %}
+              {% set archivo_ext = detalle_documento.archivo_documento.split('.')[-1]|lower %}
+              {% set es_imagen = archivo_ext in ['jpg', 'jpeg', 'png', 'gif', 'bmp'] %}
+              {% set es_pdf = archivo_ext == 'pdf' %}
+              
+              {% if es_imagen %}
+                <!-- Vista previa de imagen -->
+                <div class="card mb-3" style="max-width: 800px;">
+                  <div class="card-body">
+                    <h6 class="card-title mb-3">Vista previa de la imagen</h6>
+                    <div class="text-center mb-3">
+                      <img 
+                        src="/static/documentos/{{ detalle_documento.archivo_documento }}" 
+                        alt="{{ detalle_documento.nombre_documento }}"
+                        class="img-fluid rounded shadow-sm"
+                        style="max-height: 500px; max-width: 100%; cursor: pointer;"
+                        onclick="window.open('/static/documentos/{{ detalle_documento.archivo_documento }}', '_blank')"
+                        title="Haz clic para ver en tamaño completo" />
+                    </div>
+                    <div class="text-center">
+                      <a 
+                        href="{{ url_for('descargar_documento', nombre_archivo=detalle_documento.archivo_documento) }}"
+                        class="btn btn-primary me-2">
+                        <i class="bi bi-download"></i> Descargar imagen
+                      </a>
+                      <a 
+                        href="/static/documentos/{{ detalle_documento.archivo_documento }}" 
+                        target="_blank"
+                        class="btn btn-outline-primary">
+                        <i class="bi bi-box-arrow-up-right"></i> Abrir en nueva pestaña
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% elif es_pdf %}
+                <!-- Vista para PDF -->
+                <div class="card mb-3" style="max-width: 800px;">
+                  <div class="card-body text-center">
+                    <div class="mb-3">
+                      <i class="bi bi-file-earmark-pdf" style="font-size: 4rem; color: #dc3545;"></i>
+                    </div>
+                    <h6 class="card-title mb-3">Documento PDF</h6>
+                    <div>
+                      <a 
+                        href="{{ url_for('descargar_documento', nombre_archivo=detalle_documento.archivo_documento) }}"
+                        class="btn btn-danger me-2">
+                        <i class="bi bi-download"></i> Descargar PDF
+                      </a>
+                      <a 
+                        href="/static/documentos/{{ detalle_documento.archivo_documento }}" 
+                        target="_blank"
+                        class="btn btn-outline-danger">
+                        <i class="bi bi-box-arrow-up-right"></i> Ver PDF en nueva pestaña
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% else %}
+                <!-- Otros tipos de archivo -->
+                <div class="card mb-3" style="max-width: 800px;">
+                  <div class="card-body text-center">
+                    <div class="mb-3">
+                      <i class="bi bi-file-earmark" style="font-size: 4rem; color: #6c757d;"></i>
+                    </div>
+                    <h6 class="card-title mb-3">Archivo: {{ detalle_documento.archivo_documento }}</h6>
+                    <div>
+                      <a 
+                        href="{{ url_for('descargar_documento', nombre_archivo=detalle_documento.archivo_documento) }}"
+                        class="btn btn-primary me-2">
+                        <i class="bi bi-download"></i> Descargar archivo
+                      </a>
+                      <a 
+                        href="/static/documentos/{{ detalle_documento.archivo_documento }}" 
+                        target="_blank"
+                        class="btn btn-outline-primary">
+                        <i class="bi bi-box-arrow-up-right"></i> Abrir en nueva pestaña
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% endif %}
+            {% else %}
+              <span class="text-muted">No hay archivo asociado</span>
+            {% endif %}
+          </div>
+        </div>
+
+        {% if detalle_documento.descripcion %}
+        <div class="row mt-3">
+          <div class="col-md-12">
+            <label for="descripcion" class="form-label">
+              <strong>Descripción</strong>
+            </label>
+            <br />
+            <p>{{ detalle_documento.descripcion }}</p>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="row mt-4">
+          <div class="col-md-12">
+            <h5 class="mb-3">Configuración de Notificaciones</h5>
+            <div class="table-responsive">
+              <table class="table table-bordered">
+                <thead>
+                  <tr>
+                    <th>Días antes del vencimiento</th>
+                    <th>Estado de notificación</th>
+                    <th>Fecha de notificación</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for config in config_notificaciones %}
+                  <tr>
+                    <td>
+                      {% if config.dias_antes == 0 %}
+                        Mismo día del vencimiento
+                      {% elif config.dias_antes == 7 %}
+                        Una semana antes (7 días)
+                      {% elif config.dias_antes == 30 %}
+                        Un mes antes (30 días)
+                      {% else %}
+                        {{ config.dias_antes }} días antes
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if config.dias_antes == 0 %}
+                        {% if config.notificar_mismo_dia == 1 %}
+                          <span class="badge bg-success">Activada</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Desactivada</span>
+                        {% endif %}
+                      {% elif config.dias_antes == 7 %}
+                        {% if config.notificar_una_semana == 1 %}
+                          <span class="badge bg-success">Activada</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Desactivada</span>
+                        {% endif %}
+                      {% elif config.dias_antes == 30 %}
+                        {% if config.notificar_un_mes == 1 %}
+                          <span class="badge bg-success">Activada</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Desactivada</span>
+                        {% endif %}
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if config.notificado == 1 and config.fecha_notificacion %}
+                        {{ config.fecha_notificacion }}
+                      {% else %}
+                        <span class="text-muted">Pendiente</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="row mt-4 mb-4">
+          <div class="col-md-12 text-center">
+            <a
+              href="{{ url_for('viewEditarDocumento', id = detalle_documento.id_documento) }}"
+              class="btn btn-success">
+              <i class="bi bi-arrow-clockwise"></i>
+              Editar Documento
+            </a>
+            <a
+              href="/lista-de-documentos"
+              class="btn btn-secondary">
+              <i class="bi bi-arrow-left"></i>
+              Volver a la lista
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% else %}
+<h2 class="text-center">
+  No existe el Documento 😭
+  <hr />
+</h2>
+{% endif %}
+{% endblock %}
+

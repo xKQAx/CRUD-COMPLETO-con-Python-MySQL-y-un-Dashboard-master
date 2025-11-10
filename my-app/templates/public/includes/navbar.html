@@ -1,9 +1,51 @@
-<div
-  class="layout-menu-toggle navbar-nav align-items-xl-center me-xl-0 d-xl-none btnMovil">
-  <a
-    class="nav-item nav-link px-0 me-xl-4"
-    href="javascript:void(0)"
-    style="margin-right: 15px">
-    <i class="bx bx-menu"></i>
-  </a>
-</div>
+<nav class="layout-navbar container-xxl navbar navbar-expand-xl navbar-detached align-items-center bg-navbar-theme" id="layout-navbar">
+  <div class="layout-menu-toggle navbar-nav align-items-xl-center me-xl-0 d-xl-none btnMovil">
+    <a
+      class="nav-item nav-link px-0 me-xl-4"
+      href="javascript:void(0)"
+      style="margin-right: 15px">
+      <i class="bx bx-menu"></i>
+    </a>
+  </div>
+
+  <div class="navbar-nav-right d-flex align-items-center" id="navbar-nav-right">
+    <!-- Notificaciones -->
+    <ul class="navbar-nav flex-row align-items-center ms-auto">
+      <li class="nav-item navbar-dropdown dropdown me-2 me-xl-0">
+        <a class="nav-link dropdown-toggle hide-arrow" href="javascript:void(0);" data-bs-toggle="dropdown">
+          <i class="bx bx-bell bx-sm"></i>
+          <span class="badge bg-danger rounded-pill badge-notifications" id="badge-notificaciones" style="display: none;">0</span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-end dropdown-menu-notifications">
+          <li class="dropdown-header">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-bold">Notificaciones</span>
+              <span class="badge bg-label-primary rounded-pill" id="contador-notificaciones">0</span>
+            </div>
+          </li>
+          <li>
+            <div class="dropdown-divider"></div>
+          </li>
+          <li>
+            <div id="lista-notificaciones" class="notification-list" style="max-height: 400px; overflow-y: auto;">
+              <div class="text-center p-3">
+                <div class="spinner-border spinner-border-sm text-primary" role="status">
+                  <span class="visually-hidden">Cargando...</span>
+                </div>
+                <p class="text-muted mb-0 mt-2">Cargando notificaciones...</p>
+              </div>
+            </div>
+          </li>
+          <li>
+            <div class="dropdown-divider"></div>
+          </li>
+          <li>
+            <a class="dropdown-item text-center text-primary" href="/lista-de-documentos">
+              Ver todos los documentos
+            </a>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+</nav>
